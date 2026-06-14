@@ -1,22 +1,19 @@
-//
-//  ContentView.swift
-//  NightVision
-//
-//  Created by David Ernst on 6/13/26.
-//
-
 import SwiftUI
 import RealityKit
 import RealityKitContent
 
 struct ContentView: View {
+    @Environment(AppModel.self) private var appModel
 
     var body: some View {
-        VStack {
-            Model3D(named: "Scene", bundle: realityKitContentBundle)
-                .padding(.bottom, 50)
+        @Bindable var appModel = appModel
+        VStack(spacing: 20) {
+            Text("NightVision")
+                .font(.title)
 
-            Text("Hello, world!")
+            Slider(value: $appModel.meshOpacity, in: 0...1)
+                .frame(width: 300)
+            Text("Intensity: \(Int(appModel.meshOpacity * 100))%")
 
             ToggleImmersiveSpaceButton()
         }

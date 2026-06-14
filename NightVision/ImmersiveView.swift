@@ -3,6 +3,8 @@ import RealityKit
 import ARKit
 
 struct ImmersiveView: View {
+    @Environment(AppModel.self) private var appModel
+
     let session = ARKitSession()
     let sceneReconstruction = SceneReconstructionProvider(modes: [.classification])
     
@@ -12,6 +14,8 @@ struct ImmersiveView: View {
     var body: some View {
         RealityView { content in
             content.add(rootEntity)
+        } update: { _ in
+            updateAllMeshOpacity(appModel.meshOpacity)
         }
         .task {
             do {
@@ -25,6 +29,13 @@ struct ImmersiveView: View {
         }
     }
     
+    @MainActor
+    func updateAllMeshOpacity(_ opacity: Double) {
+        for entity in meshEntities.values {
+            entity.components.set(OpacityComponent(opacity: Float(opacity)))
+        }
+    }
+
     @MainActor
     func updateMesh(update: AnchorUpdate<MeshAnchor>) async {
         let anchor = update.anchor
@@ -42,7 +53,7 @@ struct ImmersiveView: View {
         entity.transform = Transform(matrix: anchor.originFromAnchorTransform)
         
         var material = UnlitMaterial()
-        material.color = .init(tint: .green.withAlphaComponent(0.6))
+        material.color = .init(tint: .green.withAlphaComponent(CGFloat(appModel.meshOpacity)))
         entity.model = ModelComponent(mesh: meshResource, materials: [material])
         
         if meshEntities[anchor.id] == nil {
