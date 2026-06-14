@@ -18,5 +18,5 @@ class AppModel {
         case open
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
-    var meshOpacity: Double = 0.6
+    var meshOpacity: Double = 0.07
 }

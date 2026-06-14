@@ -53,7 +53,7 @@ struct ImmersiveView: View {
         entity.transform = Transform(matrix: anchor.originFromAnchorTransform)
         
         var material = UnlitMaterial()
-        material.color = .init(tint: .green.withAlphaComponent(CGFloat(appModel.meshOpacity)))
+        material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: CGFloat(appModel.meshOpacity))) // Light blue
         entity.model = ModelComponent(mesh: meshResource, materials: [material])
         
         if meshEntities[anchor.id] == nil {
