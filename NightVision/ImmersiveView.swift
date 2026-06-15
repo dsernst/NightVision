@@ -34,7 +34,7 @@ struct ImmersiveView: View {
         for container in meshEntities.values {
             for child in container.children {
                 guard let modelChild = child as? ModelEntity else { continue }
-                if modelChild.name == "dot" {
+                if modelChild.name == "dots" {
                     modelChild.components.set(OpacityComponent(opacity: Float(appModel.dotsOpacity)))
                 } else if modelChild.name == "mesh" {
                     modelChild.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity)))
@@ -71,29 +71,67 @@ struct ImmersiveView: View {
             containerEntity.addChild(meshEntity)
         }
 
-        // --- Point cloud dots ---
+        // --- Point cloud: one combined mesh of flat discs ---
         let vertexCount = geometry.vertices.count
         let vertexStride = geometry.vertices.stride
         let vertexBuffer = geometry.vertices.buffer.contents()
-        let step = max(20, Int(101 - appModel.dotDensity))
+        let normalStride = geometry.normals.stride
+        let normalBuffer = geometry.normals.buffer.contents()
+        let step = max(1, Int(101 - appModel.dotDensity))
+        let radius = Float(appModel.dotSize)
+
+        var positions: [SIMD3<Float>] = []
+        var normals: [SIMD3<Float>] = []
+        var indices: [UInt32] = []
 
         for i in stride(from: 0, to: vertexCount, by: step) {
-            let ptr = vertexBuffer.advanced(by: i * vertexStride)
             var localPos = SIMD3<Float>()
-            memcpy(&localPos, ptr, MemoryLayout<SIMD3<Float>>.size)
+            memcpy(&localPos, vertexBuffer.advanced(by: i * vertexStride), MemoryLayout<SIMD3<Float>>.size)
 
-            let worldPos = (anchorTransform * SIMD4<Float>(localPos.x, localPos.y, localPos.z, 1)).xyz
-            let distance = length(worldPos)
-            let radius = Float(max(0.001, appModel.dotSize - Double(distance) * 0.001))
+            var normal = SIMD3<Float>()
+            memcpy(&normal, normalBuffer.advanced(by: i * normalStride), MemoryLayout<SIMD3<Float>>.size)
+            normal = normalize(normal)
 
-            let dot = ModelEntity(mesh: .generateSphere(radius: radius), materials: [])
-            var material = UnlitMaterial()
-            material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: 1.0))
-            dot.model?.materials = [material]
-            dot.name = "dot"
-            dot.position = localPos
-            dot.components.set(OpacityComponent(opacity: Float(appModel.dotsOpacity)))
-            containerEntity.addChild(dot)
+            // Build orthonormal basis for the disc plane
+            let up = abs(normal.y) < 0.9 ? SIMD3<Float>(0, 1, 0) : SIMD3<Float>(1, 0, 0)
+            let tangent = normalize(cross(up, normal))
+            let bitangent = cross(normal, tangent)
+
+            // Circles: many-sided triangles
+            let baseIndex = UInt32(positions.count)
+            positions.append(localPos) // center
+            normals.append(normal)
+
+            let sides = 16
+            for j in 0..<sides {
+                let angle = Float(j) * (2 * .pi / Float(sides))
+                let offset = tangent * (cos(angle) * radius) + bitangent * (sin(angle) * radius)
+                positions.append(localPos + offset)
+                normals.append(normal)
+            }
+
+            // triangles fan from center
+            for j in 0..<sides {
+                indices.append(baseIndex) // center
+                indices.append(baseIndex + UInt32(j) + 1) // current rim
+                indices.append(baseIndex + UInt32((j + 1) % sides) + 1) // next rim
+            }
+        }
+
+        if !positions.isEmpty {
+            var dotsDescriptor = MeshDescriptor()
+            dotsDescriptor.positions = MeshBuffers.Positions(positions)
+            dotsDescriptor.normals = MeshBuffers.Normals(normals)
+            dotsDescriptor.primitives = .triangles(indices)
+
+            if let dotsResource = try? MeshResource.generate(from: [dotsDescriptor]) {
+                var material = UnlitMaterial()
+                material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: 1.0))
+                let dotsEntity = ModelEntity(mesh: dotsResource, materials: [material])
+                dotsEntity.name = "dots"
+                dotsEntity.components.set(OpacityComponent(opacity: Float(appModel.dotsOpacity)))
+                containerEntity.addChild(dotsEntity)
+            }
         }
 
         meshEntities[anchor.id] = containerEntity
