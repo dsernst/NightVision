@@ -75,7 +75,7 @@ struct ImmersiveView: View {
         let vertexCount = geometry.vertices.count
         let vertexStride = geometry.vertices.stride
         let vertexBuffer = geometry.vertices.buffer.contents()
-        let step = max(1, Int(appModel.dotDensity))
+        let step = max(20, Int(101 - appModel.dotDensity))
 
         for i in stride(from: 0, to: vertexCount, by: step) {
             let ptr = vertexBuffer.advanced(by: i * vertexStride)

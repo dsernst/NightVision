@@ -16,7 +16,7 @@ struct ContentView: View {
             Group {
                 LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...1, format: "%d%%")
                 LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...1, format: "%d%%")
-                LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 1...40, format: "step %d")
+                LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 1...81, format: "%d")
                 LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 0.001...0.03, format: "%.3f")
             }
 
