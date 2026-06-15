@@ -1,7 +1,7 @@
 NightVision - See in the dark
 =====
 
-![preview.png](./NightVision/Assets.xcassets/AppIcon.solidimagestack/Front.solidimagestacklayer/Content.imageset/preview.png)
+<img src="./NightVision/Assets.xcassets/AppIcon.solidimagestack/Front.solidimagestacklayer/Content.imageset/preview.png" alt="preview.png" width="300px" />
 
 Augment your senses.
 
