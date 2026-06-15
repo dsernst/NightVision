@@ -12,6 +12,14 @@ struct ContentView: View {
             Text("NightVision")
                 .font(.title)
 
+            // If Error
+            if let error = appModel.arkitError {
+                Text(error)
+                    .foregroundStyle(.red)
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+            }
+
             ToggleImmersiveSpaceButton()
 
             Divider()

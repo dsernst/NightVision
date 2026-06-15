@@ -20,11 +20,23 @@ struct ImmersiveView: View {
         .task {
             do {
                 try await session.run([sceneReconstruction])
+
+                // Timeout warning if no anchors arrive
+                Task {
+                    try? await Task.sleep(for: .seconds(5))
+                    if meshEntities.isEmpty {
+                        print("⚠️ NightVision: No mesh anchors received after 5s — try restarting your device")
+                        appModel.arkitError = "No data received. If this persists, restart your Vision Pro."
+                    }
+                }
+
                 for await update in sceneReconstruction.anchorUpdates {
+//                    print("Got anchor update: \(update.event)")
                     await updateMesh(update: update)
                 }
             } catch {
                 print("ARKit error: \(error)")
+                appModel.arkitError = error.localizedDescription
             }
         }
     }
