@@ -23,7 +23,7 @@ struct ImmersiveView: View {
 
                 // Timeout warning if no anchors arrive
                 Task {
-                    try? await Task.sleep(for: .seconds(5))
+                    try? await Task.sleep(for: .seconds(2))
                     if meshEntities.isEmpty {
                         let errorMsg = "⚠️ ARKit giving no data. Probably requires device restart."
                         print(errorMsg)
