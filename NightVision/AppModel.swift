@@ -23,5 +23,5 @@ class AppModel {
     var meshOpacity: Double = 0.01 // base mesh
     var dotsOpacity: Double = 0.4
     var dotDensity: Double = 96
-    var dotSize: Double = 0.001
+    var dotSize: Double = 1.0
 }
