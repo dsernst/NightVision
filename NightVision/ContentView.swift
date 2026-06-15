@@ -28,7 +28,7 @@ struct ContentView: View {
                 VStack(spacing: 16) {
                     LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...0.3, format: "%d%%")
                     LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...0.5, format: "%d%%")
-                    LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 0...1, format: "%.2f")
+                    LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 0...10, format: "%.1f")
                     LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 1.0...10.0, format: "%.1f")
                 }
                 .padding(.top, 8)
