@@ -77,7 +77,7 @@ struct ImmersiveView: View {
         let vertexBuffer = geometry.vertices.buffer.contents()
         let normalStride = geometry.normals.stride
         let normalBuffer = geometry.normals.buffer.contents()
-        let step = max(1, Int(101 - appModel.dotDensity))
+        let step = max(1, Int(pow(100.0, 1.0 - appModel.dotDensity)))
         let radius = Float(appModel.dotSize / 1000)
 
         var positions: [SIMD3<Float>] = []
