@@ -20,7 +20,7 @@ class AppModel {
     var immersiveSpaceState = ImmersiveSpaceState.closed
 
     // Advanced settings
-    var meshOpacity: Double = 0.001 // base mesh
+    var meshOpacity: Double = 0.01 // base mesh
     var dotsOpacity: Double = 0.4
     var dotDensity: Double = 96
     var dotSize: Double = 0.001

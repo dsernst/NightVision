@@ -37,7 +37,7 @@ struct ImmersiveView: View {
                 if modelChild.name == "dots" {
                     modelChild.components.set(OpacityComponent(opacity: Float(appModel.dotsOpacity)))
                 } else if modelChild.name == "mesh" {
-                    modelChild.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity)))
+                    modelChild.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity / 10)))
                 }
             }
         }
@@ -67,7 +67,7 @@ struct ImmersiveView: View {
             material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: 1.0))
             let meshEntity = ModelEntity(mesh: meshResource, materials: [material])
             meshEntity.name = "mesh"
-            meshEntity.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity)))
+            meshEntity.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity / 10)))
             containerEntity.addChild(meshEntity)
         }
 
