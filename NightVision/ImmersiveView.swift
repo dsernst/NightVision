@@ -25,8 +25,9 @@ struct ImmersiveView: View {
                 Task {
                     try? await Task.sleep(for: .seconds(5))
                     if meshEntities.isEmpty {
-                        print("⚠️ NightVision: No mesh anchors received after 5s — try restarting your device")
-                        appModel.arkitError = "No data received. If this persists, restart your Vision Pro."
+                        let errorMsg = "⚠️ ARKit giving no data. Probably requires device restart."
+                        print(errorMsg)
+                        appModel.arkitError = errorMsg
                     }
                 }
 
