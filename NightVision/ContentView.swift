@@ -7,17 +7,62 @@ struct ContentView: View {
 
     var body: some View {
         @Bindable var appModel = appModel
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Text("NightVision")
                 .font(.title)
 
-            Slider(value: $appModel.meshOpacity, in: 0...1)
-                .frame(width: 300)
-            Text("Intensity: \(Int(appModel.meshOpacity * 100))%")
+            Divider()
+
+            Group {
+                LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...1, format: "%d%%")
+                LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...1, format: "%d%%")
+                LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 1...40, format: "step %d")
+                LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 0.001...0.03, format: "%.3f")
+            }
+
+            Divider()
 
             ToggleImmersiveSpaceButton()
         }
         .padding()
+        .frame(width: 360)
+    }
+}
+
+struct LabeledSlider: View {
+    let label: String
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let format: String
+
+    init(label: String, value: Binding<Double>, in range: ClosedRange<Double>, format: String) {
+        self.label = label
+        self._value = value
+        self.range = range
+        self.format = format
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(label)
+                Spacer()
+                Text(formattedValue)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+            Slider(value: $value, in: range)
+        }
+    }
+
+    var formattedValue: String {
+        if format.contains("%%") {
+            return String(format: format, Int(value * 100))
+        } else if format.contains("d") {
+            return String(format: format, Int(value))
+        } else {
+            return String(format: format, value)
+        }
     }
 }
 

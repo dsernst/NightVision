@@ -7,15 +7,15 @@ struct ImmersiveView: View {
 
     let session = ARKitSession()
     let sceneReconstruction = SceneReconstructionProvider(modes: [.classification])
-    
+
     @State private var meshEntities: [UUID: Entity] = [:]
     @State private var rootEntity = Entity()
-    
+
     var body: some View {
         RealityView { content in
             content.add(rootEntity)
         } update: { _ in
-            updateAllMeshOpacity(appModel.meshOpacity)
+            updateAllOpacity()
         }
         .task {
             do {
@@ -28,12 +28,17 @@ struct ImmersiveView: View {
             }
         }
     }
-    
+
     @MainActor
-    func updateAllMeshOpacity(_ opacity: Double) {
+    func updateAllOpacity() {
         for container in meshEntities.values {
             for child in container.children {
-                (child as? ModelEntity)?.components.set(OpacityComponent(opacity: Float(opacity)))
+                guard let modelChild = child as? ModelEntity else { continue }
+                if modelChild.name == "dot" {
+                    modelChild.components.set(OpacityComponent(opacity: Float(appModel.dotsOpacity)))
+                } else if modelChild.name == "mesh" {
+                    modelChild.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity)))
+                }
             }
         }
     }
@@ -48,38 +53,46 @@ struct ImmersiveView: View {
             return
         }
 
-        // Remove old entity for this anchor
         meshEntities[anchor.id]?.removeFromParent()
 
         let geometry = anchor.geometry
-        let vertexCount = geometry.vertices.count
-        let vertexStride = geometry.vertices.stride
-        let vertexBuffer = geometry.vertices.buffer.contents()
         let anchorTransform = anchor.originFromAnchorTransform
-
         let containerEntity = Entity()
         containerEntity.transform = Transform(matrix: anchorTransform)
 
-        let step = 20 // was 6, try 20 first
+        // --- Base solid mesh (faint) ---
+        let meshDescriptor = geometry.asMeshDescriptor()
+        if let meshResource = try? MeshResource.generate(from: [meshDescriptor]) {
+            var material = UnlitMaterial()
+            material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: 1.0))
+            let meshEntity = ModelEntity(mesh: meshResource, materials: [material])
+            meshEntity.name = "mesh"
+            meshEntity.components.set(OpacityComponent(opacity: Float(appModel.meshOpacity)))
+            containerEntity.addChild(meshEntity)
+        }
+
+        // --- Point cloud dots ---
+        let vertexCount = geometry.vertices.count
+        let vertexStride = geometry.vertices.stride
+        let vertexBuffer = geometry.vertices.buffer.contents()
+        let step = max(1, Int(appModel.dotDensity))
 
         for i in stride(from: 0, to: vertexCount, by: step) {
             let ptr = vertexBuffer.advanced(by: i * vertexStride)
             var localPos = SIMD3<Float>()
             memcpy(&localPos, ptr, MemoryLayout<SIMD3<Float>>.size)
 
-            // Transform to world space to calculate distance
             let worldPos = (anchorTransform * SIMD4<Float>(localPos.x, localPos.y, localPos.z, 1)).xyz
             let distance = length(worldPos)
+            let radius = Float(max(0.001, appModel.dotSize - Double(distance) * 0.001))
 
-            // Closer = bigger dot
-            let dotSize = max(0.002, 0.015 - Double(distance) * 0.002)
-
-            let mesh = MeshResource.generateSphere(radius: Float(dotSize))
+            let dot = ModelEntity(mesh: .generateSphere(radius: radius), materials: [])
             var material = UnlitMaterial()
-            material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: CGFloat(appModel.meshOpacity)))
-
-            let dot = ModelEntity(mesh: mesh, materials: [material])
+            material.color = .init(tint: UIColor(red: 0.5, green: 0.8, blue: 1.0, alpha: 1.0))
+            dot.model?.materials = [material]
+            dot.name = "dot"
             dot.position = localPos
+            dot.components.set(OpacityComponent(opacity: Float(appModel.dotsOpacity)))
             containerEntity.addChild(dot)
         }
 
@@ -96,7 +109,7 @@ struct ImmersiveView: View {
 extension MeshAnchor.Geometry {
     func asMeshDescriptor() -> MeshDescriptor {
         var descriptor = MeshDescriptor()
-        
+
         let vertexCount = vertices.count
         let vertexStride = vertices.stride
         let vertexBuffer = vertices.buffer.contents()
@@ -108,7 +121,7 @@ extension MeshAnchor.Geometry {
             positions.append(v)
         }
         descriptor.positions = MeshBuffers.Positions(positions)
-        
+
         let faceCount = faces.count
         let indexBuffer = faces.buffer.contents()
         var indices: [UInt32] = []
@@ -119,7 +132,7 @@ extension MeshAnchor.Geometry {
             indices.append(idx)
         }
         descriptor.primitives = .triangles(indices)
-        
+
         return descriptor
     }
 }

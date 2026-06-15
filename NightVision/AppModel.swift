@@ -18,5 +18,9 @@ class AppModel {
         case open
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
-    var meshOpacity: Double = 0.07
+    var dotsOpacity: Double = 0.6
+    var dotDensity: Double = 20
+    var dotSize: Double = 0.008
+
+    var meshOpacity: Double = 0.05 // base mesh
 }
