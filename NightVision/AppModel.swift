@@ -18,6 +18,7 @@ class AppModel {
         case open
     }
     var immersiveSpaceState = ImmersiveSpaceState.closed
+    var arkitError: String? = nil
 
     // Advanced settings
     var meshOpacity: Double = 0.01 // base mesh
