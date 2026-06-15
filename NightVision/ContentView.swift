@@ -4,6 +4,7 @@ import RealityKitContent
 
 struct ContentView: View {
     @Environment(AppModel.self) private var appModel
+    @State private var showAdvanced = false
 
     var body: some View {
         @Bindable var appModel = appModel
@@ -11,18 +12,19 @@ struct ContentView: View {
             Text("NightVision")
                 .font(.title)
 
-            Divider()
-
-            Group {
-                LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...1, format: "%d%%")
-                LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...1, format: "%d%%")
-                LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 1...81, format: "%d")
-                LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 0.001...0.03, format: "%.3f")
-            }
-
-            Divider()
-
             ToggleImmersiveSpaceButton()
+
+            Divider()
+
+            DisclosureGroup("Advanced Settings", isExpanded: $showAdvanced) {
+                VStack(spacing: 16) {
+                    LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...1, format: "%d%%")
+                    LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...1, format: "%d%%")
+                    LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 1...89, format: "%d")
+                    LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 0.001...0.03, format: "%.3f")
+                }
+                .padding(.top, 8)
+            }
         }
         .padding()
         .frame(width: 360)
