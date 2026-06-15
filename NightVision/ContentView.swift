@@ -18,10 +18,10 @@ struct ContentView: View {
 
             DisclosureGroup("Advanced Settings", isExpanded: $showAdvanced) {
                 VStack(spacing: 16) {
-                    LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...1, format: "%d%%")
-                    LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...1, format: "%d%%")
-                    LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 1...89, format: "%d")
-                    LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 0.001...0.03, format: "%.3f")
+                    LabeledSlider(label: "Mesh Opacity", value: $appModel.meshOpacity, in: 0...0.1, format: "%.1f%%")
+                    LabeledSlider(label: "Dots Opacity", value: $appModel.dotsOpacity, in: 0...0.5, format: "%d%%")
+                    LabeledSlider(label: "Dot Density", value: $appModel.dotDensity, in: 0...100, format: "%d")
+                    LabeledSlider(label: "Dot Size", value: $appModel.dotSize, in: 0.001...0.01, format: "%.4f")
                 }
                 .padding(.top, 8)
             }
@@ -58,8 +58,10 @@ struct LabeledSlider: View {
     }
 
     var formattedValue: String {
-        if format.contains("%%") {
-            return String(format: format, Int(value * 100))
+        if format == "%.1f%%" {
+            return String(format: "%.1f%%", value * 100)
+        } else if format.contains("%%") {
+            return String(format: "%d%%", Int(value * 100))
         } else if format.contains("d") {
             return String(format: format, Int(value))
         } else {
