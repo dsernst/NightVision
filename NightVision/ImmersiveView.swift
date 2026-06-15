@@ -99,14 +99,15 @@ struct ImmersiveView: View {
 
             // Circles: many-sided triangles
             let baseIndex = UInt32(positions.count)
-            positions.append(localPos) // center
+            let lift = normal * 0.002 // Prevent base mesh from clipping dots
+            positions.append(localPos + lift) // center
             normals.append(normal)
 
             let sides = 16
             for j in 0..<sides {
                 let angle = Float(j) * (2 * .pi / Float(sides))
                 let offset = tangent * (cos(angle) * radius) + bitangent * (sin(angle) * radius)
-                positions.append(localPos + offset)
+                positions.append(localPos + lift + offset)
                 normals.append(normal)
             }
 
