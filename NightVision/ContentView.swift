@@ -35,7 +35,10 @@ struct ContentView: View {
             }
         }
         .padding()
-        .frame(width: 360)
+        .frame(width: 360) // settings width (inside padding)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center) // center content
+        .frame(width: 420, height: showAdvanced ? 540 : 300) // window size
+        .animation(.easeInOut(duration: 0.25), value: showAdvanced)
     }
 }
 

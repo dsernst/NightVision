@@ -17,7 +17,8 @@ struct NightVisionApp: App {
             ContentView()
                 .environment(appModel)
         }
-        .defaultSize(width: 420, height: 540)
+        .defaultSize(width: 420, height: 300)
+        .windowResizability(.contentSize)
 
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
