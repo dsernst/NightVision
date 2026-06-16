@@ -21,8 +21,8 @@ class AppModel {
     var arkitError: String? = nil
 
     // Advanced settings
-    var meshOpacity: Double = 0.01 // base mesh
-    var dotsOpacity: Double = 0.2
     var dotDensity: Double = 7.0
     var dotSize: Double = 1.0
+    var dotsOpacity: Double = 0.2
+    var meshOpacity: Double = 0.01 // base mesh
 }
